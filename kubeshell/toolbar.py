@@ -23,15 +23,15 @@ class Toolbar(object):
                 help = "OFF"
 
             return [
-                (Keyword, ' [F4] Cluster: '),
+                (Keyword, ' [C-X] Context: '),
                 (Token.Toolbar, get_cluster_name()),
-                (Keyword, ' [F5] Namespace: '),
+                (Keyword, ' [C-N] Namespace: '),
                 (Token.Toolbar, get_namespace()),
                 (Keyword, ' User: '),
                 (Token.Toolbar, get_user()),
-                (Keyword, ' [F9] In-line help: '),
+                (Keyword, ' [C-H] In-line help: '),
                 (help_token, '{0}'.format(help)),
-                (Keyword, ' [F10] Exit ')
+                (Keyword, ' [C-C] Exit ')
             ]
 
         return get_toolbar_items

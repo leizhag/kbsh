@@ -99,7 +99,7 @@ class Kubeshell(object):
             os.makedirs(shell_dir)
         self.toolbar = Toolbar(self.get_cluster_name, self.get_namespace, self.get_user, self.get_inline_help)
 
-    @registry.add_binding(Keys.F4)
+    @registry.add_binding(Keys.ControlX)
     def _(event):
         try:
             KubeConfig.switch_to_next_cluster()
@@ -107,7 +107,7 @@ class Kubeshell(object):
         except Exception as e:
             logger.warning("failed switching clusters", exc_info=1)
 
-    @registry.add_binding(Keys.F5)
+    @registry.add_binding(Keys.ControlN)
     def _(event):
         try:
             KubeConfig.switch_to_next_namespace(Kubeshell.namespace)
@@ -115,13 +115,13 @@ class Kubeshell(object):
         except Exception as e:
             logger.warning("failed namespace switching", exc_info=1)
 
-    @registry.add_binding(Keys.F9)
+    @registry.add_binding(Keys.ControlH)
     def _(event):
         global inline_help
         inline_help = not inline_help
         completer.set_inline_help(inline_help)
 
-    @registry.add_binding(Keys.F10)
+    @registry.add_binding(Keys.ControlC)
     def _(event):
         sys.exit()
 
