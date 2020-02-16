@@ -92,6 +92,16 @@ class Kubeshell(object):
     clustername = user = ""
     namespace = "default"
 
+    @staticmethod
+    def get_prompt_tokens(cli):
+        return [
+            (Token.Prompt, '⎈  k8s:('),
+            (Token.Prompt.State, Kubeshell.clustername),
+            (Token.Prompt, '/'),
+            (Token.Prompt.State, Kubeshell.namespace),
+            (Token.Prompt, ') ⎈  '),
+        ]
+
     def __init__(self, refresh_resources=True):
         shell_dir = os.path.expanduser("~/.kube/shell/")
         self.history = FileHistory(os.path.join(shell_dir, "history"))
@@ -156,17 +166,19 @@ class Kubeshell(object):
             completer.set_namespace(self.namespace)
 
             try:
-                user_input = prompt('kube-shell> ',
-                            history=self.history,
-                            auto_suggest=AutoSuggestFromHistory(),
-                            style=StyleFactory("vim").style,
-                            lexer=KubectlLexer,
-                            get_title=get_title,
-                            enable_history_search=False,
-                            get_bottom_toolbar_tokens=self.toolbar.handler,
-                            vi_mode=True,
-                            key_bindings_registry=registry,
-                            completer=completer)
+                user_input = prompt(
+                    get_prompt_tokens=Kubeshell.get_prompt_tokens,
+                    history=self.history,
+                    auto_suggest=AutoSuggestFromHistory(),
+                    style=StyleFactory("vim").style,
+                    lexer=KubectlLexer,
+                    get_title=get_title,
+                    enable_history_search=False,
+                    get_bottom_toolbar_tokens=self.toolbar.handler,
+                    vi_mode=True,
+                    key_bindings_registry=registry,
+                    completer=completer
+                )
             except (EOFError, KeyboardInterrupt):
                 sys.exit()
 
