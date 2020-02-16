@@ -11,10 +11,12 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 from __future__ import print_function, absolute_import, unicode_literals
+
+from pygments.styles.default import DefaultStyle
 from pygments.token import Token
 from pygments.util import ClassNotFound
 from pygments.styles import get_style_by_name
-from prompt_toolkit.styles import default_style_extensions, style_from_dict
+from prompt_toolkit.styles import default_style_extensions, style_from_dict, style_from_pygments
 
 
 class StyleFactory(object):

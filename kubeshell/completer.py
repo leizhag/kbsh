@@ -8,8 +8,8 @@ import json
 import os
 import os.path
 
-from kubeshell.parser import Parser
-from kubeshell.client import KubernetesClient
+from parser import Parser
+from client import KubernetesClient
 logger = logging.getLogger(__name__)
 
 

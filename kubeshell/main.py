@@ -3,7 +3,7 @@
 
 
 from __future__ import print_function, absolute_import, unicode_literals
-from kubeshell.kubeshell import Kubeshell
+from app import Kubeshell
 
 import logging
 logger = logging.getLogger(__name__)

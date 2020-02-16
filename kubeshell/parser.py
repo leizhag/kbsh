@@ -5,7 +5,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from kubeshell.client import KubernetesClient
+from client import KubernetesClient
 
 
 class Option(object):

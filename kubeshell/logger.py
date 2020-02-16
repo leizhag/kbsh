@@ -43,7 +43,7 @@ loggingConf = {
             "handlers": ["file"],
             "propagate": False
         },
-        "kubeshell": {
+        "app": {
             "level": "INFO",
             "handlers": ["file"],
             "propagate": False

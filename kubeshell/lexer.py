@@ -2,8 +2,7 @@ from __future__ import print_function, absolute_import
 from pygments.lexer import RegexLexer
 from pygments.lexer import words
 from pygments.token import Keyword, Name, Operator, Generic, Literal, Text
-
-from kubeshell.completer import KubectlCompleter
+from completer import KubectlCompleter
 
 class KubectlLexer(RegexLexer):
     """Provides highlighting for commands, subcommands, arguments, and options.
