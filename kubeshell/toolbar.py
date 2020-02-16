@@ -14,24 +14,24 @@ class Toolbar(object):
         self.handler = self._create_toolbar_handler(get_cluster_name, get_namespace, get_user, get_inline_help)
 
     def _create_toolbar_handler(self, get_cluster_name, get_namespace, get_user, get_inline_help):
-        def get_toolbar_items(_):
+        def get_toolbar_items():
             if get_inline_help():
-                help_token = Token.Toolbar.On
+                help_token = 'class:bottom-toolbar.on'
                 help = "ON"
             else:
-                help_token = Token.Toolbar.Off
+                help_token = 'class:bottom-toolbar.off'
                 help = "OFF"
 
             return [
-                (Keyword, ' [C-X] Context: '),
-                (Token.Toolbar, get_cluster_name()),
-                (Keyword, ' [C-N] Namespace: '),
-                (Token.Toolbar, get_namespace()),
-                (Keyword, ' User: '),
-                (Token.Toolbar, get_user()),
-                (Keyword, ' [C-H] In-line help: '),
+                ('class:keyword', ' [C-X] Context: '),
+                ('class:bottom-toolbar', get_cluster_name()),
+                ('class:keyword', ' [C-N] Namespace: '),
+                ('class:bottom-toolbar', get_namespace()),
+                ('class:keyword', ' User: '),
+                ('class:bottom-toolbar', get_user()),
+                ('class:keyword', ' [C-H] In-line help: '),
                 (help_token, '{0}'.format(help)),
-                (Keyword, ' [C-C] Exit ')
+                ('class:keyword', ' [C-C] Exit ')
             ]
 
         return get_toolbar_items

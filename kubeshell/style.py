@@ -16,7 +16,7 @@ from pygments.styles.default import DefaultStyle
 from pygments.token import Token
 from pygments.util import ClassNotFound
 from pygments.styles import get_style_by_name
-from prompt_toolkit.styles import default_style_extensions, style_from_dict, style_from_pygments
+from prompt_toolkit.styles import style_from_pygments_cls, merge_styles, Style
 
 
 class StyleFactory(object):
@@ -40,38 +40,47 @@ class StyleFactory(object):
         :rtype: :class:`pygments.style.StyleMeta`
         :return: Pygments style info.
         """
-        try:
-            style = get_style_by_name(style_name)
-        except ClassNotFound:
-            style = get_style_by_name('vim')
-
-        # Create a style dictionary.
-        styles = {}
-        styles.update(style.styles)
-        styles.update(default_style_extensions)
-        t = Token
-        styles.update({
-            t.Menu.Completions.Completion.Current: 'bg:#00aaaa #000000',
-            t.Menu.Completions.Completion: 'bg:#008888 #ffffff',
-            t.Menu.Completions.Meta.Current: 'bg:#00aaaa #000000',
-            t.Menu.Completions.Meta: 'bg:#00aaaa #ffffff',
-            t.Scrollbar.Button: 'bg:#003333',
-            t.Scrollbar: 'bg:#00aaaa',
-            t.Toolbar: 'bg:#222222 #cccccc',
-            t.Toolbar.Off: 'bg:#222222 #696969',
-            t.Toolbar.On: 'bg:#222222 #ffffff',
-            t.Toolbar.Search: 'noinherit bold',
-            t.Toolbar.Search.Text: 'nobold',
-            t.Toolbar.System: 'noinherit bold',
-            t.Toolbar.Arg: 'noinherit bold',
-            t.Toolbar.Arg.Text: 'nobold'
-        })
+        # try:
+        #     style = get_style_by_name(style_name)
+        # except ClassNotFound:
+        #     style = get_style_by_name('vim')
+        #
+        # # Create a style dictionary.
+        # styles = {}
+        # styles.update(style.styles)
+        # styles.update(default_style_extensions)
+        # t = Token
+        # styles.update({
+        #     t.Menu.Completions.Completion.Current: 'bg:#00aaaa #000000',
+        #     t.Menu.Completions.Completion: 'bg:#008888 #ffffff',
+        #     t.Menu.Completions.Meta.Current: 'bg:#00aaaa #000000',
+        #     t.Menu.Completions.Meta: 'bg:#00aaaa #ffffff',
+        #     t.Scrollbar.Button: 'bg:#003333',
+        #     t.Scrollbar: 'bg:#00aaaa',
+        #     t.Toolbar: 'bg:#222222 #cccccc',
+        #     t.Toolbar.Off: 'bg:#222222 #696969',
+        #     t.Toolbar.On: 'bg:#222222 #ffffff',
+        #     t.Toolbar.Search: 'noinherit bold',
+        #     t.Toolbar.Search.Text: 'nobold',
+        #     t.Toolbar.System: 'noinherit bold',
+        #     t.Toolbar.Arg: 'noinherit bold',
+        #     t.Toolbar.Arg.Text: 'nobold'
+        # })
 
         #return style_from_dict(styles)
-        return style_from_pygments(DefaultStyle, {
-            # User input.
-            # Token: '#ff0066',
-            # Prompt.
-            Token.Prompt: '#0000aa bold',
-            Token.Prompt.State: '#00aa00 bold',
-        })
+        return merge_styles([style_from_pygments_cls(DefaultStyle),
+                             Style.from_dict({
+                                 # User input (default text).
+                                 # '': '#ff0066',
+
+                                 # Prompt.
+                                 # 'username': '#884444',
+                                 # 'at': '#00aa00',
+                                 # 'colon': '#0000aa',
+                                 # 'pound': '#00aa00',
+                                 # 'host': '#00ffff bg:#444400',
+                                 # 'path': 'ansicyan underline',
+                                 'prompt': '#0000aa bold',
+                                 'state': '#00aa00 bold',
+                             }),
+                             ])
