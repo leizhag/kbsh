@@ -150,7 +150,7 @@ class Kubeshell(object):
     def run_cli(self):
 
         def get_title():
-            return "kube-shell"
+            return "k8s-shell"
 
         logger.info("running kube-shell event loop")
         if not os.path.exists(os.path.expanduser(kubeconfig_filepath)):
