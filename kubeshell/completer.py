@@ -39,7 +39,7 @@ class KubectlCompleter(Completer):
         word_before_cursor = document.get_word_before_cursor(WORD=True)
         cmdline = document.text_before_cursor.strip()
         try:
-            tokens = shlex.split(cmdline)
+            tokens = ['kubectl'] + shlex.split(cmdline)
             _, _, suggestions = self.parser.parse_tokens(tokens)
             valid_keys = fuzzyfinder(word_before_cursor, suggestions.keys())
             for key in valid_keys:
