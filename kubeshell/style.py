@@ -67,4 +67,11 @@ class StyleFactory(object):
             t.Toolbar.Arg.Text: 'nobold'
         })
 
-        return style_from_dict(styles)
+        #return style_from_dict(styles)
+        return style_from_pygments(DefaultStyle, {
+            # User input.
+            # Token: '#ff0066',
+            # Prompt.
+            Token.Prompt: '#0000aa bold',
+            Token.Prompt.State: '#00aa00 bold',
+        })
