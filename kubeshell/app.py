@@ -58,25 +58,32 @@ class KubeConfig(object):
         return ("", "", "")
 
     @staticmethod
-    def switch_to_next_cluster():
+    def parse_contexts():
         if not os.path.exists(os.path.expanduser(kubeconfig_filepath)):
             return
 
         with open(os.path.expanduser(kubeconfig_filepath), "r") as fd:
             docs = yaml.load_all(fd)
             for doc in docs:
-                contexts = doc.get("contexts")
-                if contexts:
-                    KubeConfig.current_context_index = (KubeConfig.current_context_index+1) % len(contexts)
-                    cluster_name = contexts[KubeConfig.current_context_index]['name']
-                    kubectl_config_use_context = "kubectl config use-context " + cluster_name
-                    cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
-                    cmd_process.wait()
-        return
+                return doc.get("contexts")
+
+    @staticmethod
+    def switch_to_next_cluster():
+        contexts = KubeConfig.parse_contexts()
+        if contexts:
+            KubeConfig.current_context_index = (KubeConfig.current_context_index+1) % len(contexts)
+            cluster_name = contexts[KubeConfig.current_context_index]['name']
+            kubectl_config_use_context = "kubectl config use-context " + cluster_name
+            cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
+            cmd_process.wait()
+
+    @staticmethod
+    def list_namespaces():
+        return client.get_resource("namespace")
 
     @staticmethod
     def switch_to_next_namespace(current_namespace):
-        namespace_resources = client.get_resource("namespace")
+        namespace_resources = KubeConfig.list_namespaces()
         namespaces = sorted(res[0] for res in namespace_resources)
         index = (namespaces.index(current_namespace) + 1) % len(namespaces)
         next_namespace = namespaces[index]
@@ -106,7 +113,8 @@ class Kubeshell(object):
         self.history = FileHistory(os.path.join(shell_dir, "history"))
         if not os.path.exists(shell_dir):
             os.makedirs(shell_dir)
-        self.toolbar = Toolbar(self.get_cluster_name, self.get_namespace, self.get_user, self.get_inline_help)
+        self.toolbar = Toolbar(KubeConfig.parse_contexts(), KubeConfig.list_namespaces,
+                               self.get_cluster_name, self.get_namespace, self.get_user, self.get_inline_help)
 
     @bindings.add('c-x')
     def _(event):

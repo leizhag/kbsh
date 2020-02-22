@@ -10,10 +10,12 @@ class Toolbar(object):
 
     """
 
-    def __init__(self, get_cluster_name, get_namespace, get_user, get_inline_help):
-        self.handler = self._create_toolbar_handler(get_cluster_name, get_namespace, get_user, get_inline_help)
+    def __init__(self, contexts, list_namespaces, get_cluster_name, get_namespace, get_user, get_inline_help):
+        self.handler = self._create_toolbar_handler(contexts, list_namespaces, get_cluster_name,
+                                                    get_namespace, get_user, get_inline_help)
 
-    def _create_toolbar_handler(self, get_cluster_name, get_namespace, get_user, get_inline_help):
+    def _create_toolbar_handler(self, contexts, list_namespaces, get_cluster_name,
+                                get_namespace, get_user, get_inline_help):
         def get_toolbar_items():
             if get_inline_help():
                 help_token = 'class:bottom-toolbar.on'
@@ -23,15 +25,17 @@ class Toolbar(object):
                 help = "OFF"
 
             return [
-                ('class:keyword', ' [C-X] Context: '),
+                ('class:bottom-toolbar', ' '.join(ctx['name'] for ctx in contexts) + '\n'),
+                ('class:bottom-toolbar', ' '.join(ns[0] for ns in list_namespaces()) + '\n'),
+                ('class:keyword',        ' [C-X] Context: '),
                 ('class:bottom-toolbar', get_cluster_name()),
-                ('class:keyword', ' [C-N] Namespace: '),
+                ('class:keyword',        ' [C-N] Namespace: '),
                 ('class:bottom-toolbar', get_namespace()),
-                ('class:keyword', ' User: '),
+                ('class:keyword',        ' User: '),
                 ('class:bottom-toolbar', get_user()),
-                ('class:keyword', ' [C-H] In-line help: '),
-                (help_token, '{0}'.format(help)),
-                ('class:keyword', ' [C-C] Exit ')
+                ('class:keyword',        ' [C-H] In-line help: '),
+                (help_token,             '{0}'.format(help)),
+                ('class:keyword',        ' [C-C] Exit ')
             ]
 
         return get_toolbar_items
