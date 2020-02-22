@@ -93,6 +93,23 @@ class KubeConfig(object):
         cmd_process.wait()
 
 
+user_input_prefix_to_shell_cmd_prefix = {
+    '!': '',
+    'g ': 'kubectl get ',
+    'd ': 'kubectl describe ',
+    'lo ': 'kubectl logs ',
+    'lot ': 'kubectl logs --tail ',
+    'ex ': 'kubectl exec -it ',
+}
+
+
+def shell_cmd_from_user_input(user_input):
+    for user_input_prefix, shell_cmd_prefix in user_input_prefix_to_shell_cmd_prefix.items():
+        if user_input.startswith(user_input_prefix):
+            return user_input.replace(user_input_prefix, shell_cmd_prefix, 1)
+    return user_input
+
+
 class Kubeshell(object):
 
     clustername = user = ""
@@ -188,8 +205,7 @@ class Kubeshell(object):
             elif user_input == "exit":
                 sys.exit()
 
-            # if execute shell command then strip "!"
-            user_input = user_input[1:] if user_input.startswith("!") else 'kubectl ' + user_input
+            user_input = shell_cmd_from_user_input(user_input)
 
             if user_input:
                 if '-o' in user_input and 'json' in user_input:
