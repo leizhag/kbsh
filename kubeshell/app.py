@@ -24,7 +24,7 @@ inline_help = True
 bindings = KeyBindings()
 completer = KubectlCompleter()
 client = KubernetesClient()
-
+api = client.get_core_v1_api()
 
 class KubeConfig(object):
 
@@ -32,6 +32,7 @@ class KubeConfig(object):
     namespace = "default"
     current_context_index = 0
     current_context_name = ""
+    template_set_namespace = "kubectl config set-context {} --namespace={}"
 
     @staticmethod
     def parse_kubeconfig():
@@ -73,13 +74,11 @@ class KubeConfig(object):
         if contexts:
             KubeConfig.current_context_index = (KubeConfig.current_context_index+1) % len(contexts)
             cluster_name = contexts[KubeConfig.current_context_index]['name']
-            kubectl_config_use_context = "kubectl config use-context " + cluster_name
-            cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
-            cmd_process.wait()
+            KubeConfig.switch_context(cluster_name)
 
     @staticmethod
     def list_namespaces():
-        return client.get_resource("namespace")
+        return api.list_namespace(timeout_seconds=1)
 
     @staticmethod
     def switch_to_next_namespace(current_namespace):
@@ -87,27 +86,48 @@ class KubeConfig(object):
         namespaces = sorted(res[0] for res in namespace_resources)
         index = (namespaces.index(current_namespace) + 1) % len(namespaces)
         next_namespace = namespaces[index]
-        fmt = "kubectl config set-context {} --namespace={}"
-        kubectl_config_set_namespace = fmt.format(KubeConfig.current_context_name, next_namespace)
+        KubeConfig.switch_namespace(next_namespace)
+
+    @classmethod
+    def switch_context(cls, ctx):
+        kubectl_config_use_context = "kubectl config use-context " + ctx
+        cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
+        cmd_process.wait()
+
+    @classmethod
+    def switch_namespace(cls, ns):
+        kubectl_config_set_namespace = KubeConfig.template_set_namespace.format(KubeConfig.current_context_name, ns)
         cmd_process = subprocess.Popen(kubectl_config_set_namespace, shell=True, stdout=subprocess.PIPE)
         cmd_process.wait()
 
 
 user_input_prefix_to_shell_cmd_prefix = {
-    '!': '',
-    'g ': 'kubectl get ',
-    'd ': 'kubectl describe ',
-    'lo ': 'kubectl logs ',
-    'lot ': 'kubectl logs --tail ',
-    'ex ': 'kubectl exec -it ',
+    'g ': 'get ',
+    'd ': 'describe ',
+    'lo ': 'logs ',
+    'lot ': 'logs --tail ',
+    'ex ': 'exec -it ',
+}
+
+user_input_part_to_shell_cmd_part = {
+    ' -t ': ' --tail ',
+    ' -c ': ' --context ',
 }
 
 
 def shell_cmd_from_user_input(user_input):
+    if user_input.startswith('!'):
+        return user_input[1:]
+
     for user_input_prefix, shell_cmd_prefix in user_input_prefix_to_shell_cmd_prefix.items():
         if user_input.startswith(user_input_prefix):
-            return user_input.replace(user_input_prefix, shell_cmd_prefix, 1)
-    return user_input
+            user_input = user_input.replace(user_input_prefix, shell_cmd_prefix, 1)
+            break
+
+    for user_input_part, shell_cmd_part in user_input_part_to_shell_cmd_part.items():
+        user_input = user_input.replace(user_input_part, shell_cmd_part, 1)
+
+    return "kubectl " + user_input
 
 
 class Kubeshell(object):
@@ -167,6 +187,14 @@ class Kubeshell(object):
     def get_inline_help(self):
         return inline_help
 
+    def update_state(self, user_input):
+        ctx = client.get_context(user_input)
+        if ctx and ctx != Kubeshell.clustername:
+            KubeConfig.switch_context(ctx)
+        ns = client.get_namespace(user_input)
+        if ns and ns != Kubeshell.namespace:
+            KubeConfig.switch_namespace(ns)
+
     def run_cli(self):
 
         logger.info("running kube-shell event loop")
@@ -211,4 +239,6 @@ class Kubeshell(object):
                 if '-o' in user_input and 'json' in user_input:
                     user_input += ' | pygmentize -l json'
                 p = subprocess.Popen(user_input, shell=True)
-                p.communicate()
+                _, stderr_data = p.communicate()
+                if not stderr_data:
+                    self.update_state(user_input)

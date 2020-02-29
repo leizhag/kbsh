@@ -120,3 +120,27 @@ class KubernetesClient(object):
         else:
             return None, namespaced_resource
         return ret, namespaced_resource
+
+    def get_core_v1_api(self):
+        return self.v1
+
+    @staticmethod
+    def get_context(cmd):
+        return KubernetesClient._option_value(cmd, '-c') or KubernetesClient._option_value(cmd, '--context')
+
+    @staticmethod
+    def get_namespace(cmd):
+        return KubernetesClient._option_value(cmd, '-n') or KubernetesClient._option_value(cmd, '--namespace')
+
+    # TODO: handle quotes
+    @staticmethod
+    def _option_value(cmd, option):
+        find = ' ' + option + ' '
+        idx = cmd.find(find)
+        if idx < 0:
+            return
+        start = idx + len(find)
+        idx_space = cmd.find(' ', start)
+        if idx_space < 0:
+            return cmd[start:]
+        return cmd[start: idx_space]
