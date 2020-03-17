@@ -7,7 +7,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.lexers import PygmentsLexer
 
 from style import StyleFactory
-from completer import KubectlCompleter
+from completer import KubectlCompleter, shell_cmd_from_user_input
 from lexer import KubectlLexer
 from toolbar import Toolbar
 from client import KubernetesClient, kubeconfig_filepath
@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 inline_help = True
 bindings = KeyBindings()
-completer = KubectlCompleter()
 client = KubernetesClient()
 api = client.get_core_v1_api()
 
@@ -68,6 +67,8 @@ class KubeConfig(object):
             for doc in docs:
                 return doc.get("contexts")
 
+    startup_contexts = [ctx['name'] for ctx in parse_contexts.__func__()]
+
     @staticmethod
     def switch_to_next_cluster():
         contexts = KubeConfig.parse_contexts()
@@ -79,6 +80,10 @@ class KubeConfig(object):
     @staticmethod
     def list_namespaces():
         return client.get_resource("namespace")
+
+    @staticmethod
+    def list_namespace_names():
+        return (ns[0] for ns in client.get_resource("namespace"))
 
     @staticmethod
     def switch_to_next_namespace(current_namespace):
@@ -101,33 +106,10 @@ class KubeConfig(object):
         cmd_process.wait()
 
 
-user_input_prefix_to_shell_cmd_prefix = {
-    'g ': 'get ',
-    'd ': 'describe ',
-    'lo ': 'logs ',
-    'lot ': 'logs --tail ',
-    'ex ': 'exec -it ',
-}
-
-user_input_part_to_shell_cmd_part = {
-    ' -t ': ' --tail ',
-    ' -c ': ' --context ',
-}
-
-
-def shell_cmd_from_user_input(user_input):
-    if user_input.startswith('!'):
-        return user_input[1:]
-
-    for user_input_prefix, shell_cmd_prefix in user_input_prefix_to_shell_cmd_prefix.items():
-        if user_input.startswith(user_input_prefix):
-            user_input = user_input.replace(user_input_prefix, shell_cmd_prefix, 1)
-            break
-
-    for user_input_part, shell_cmd_part in user_input_part_to_shell_cmd_part.items():
-        user_input = user_input.replace(user_input_part, shell_cmd_part, 1)
-
-    return "kubectl " + user_input
+completer = KubectlCompleter(suffix_to_suggestor={
+    '-n': KubeConfig.list_namespace_names,
+    '-c': lambda: KubeConfig.startup_contexts,
+})
 
 
 class Kubeshell(object):
@@ -150,7 +132,7 @@ class Kubeshell(object):
         self.history = FileHistory(os.path.join(shell_dir, "history"))
         if not os.path.exists(shell_dir):
             os.makedirs(shell_dir)
-        self.toolbar = Toolbar(KubeConfig.parse_contexts(), KubeConfig.list_namespaces,
+        self.toolbar = Toolbar(KubeConfig.startup_contexts, KubeConfig.list_namespace_names,
                                self.get_cluster_name, self.get_namespace, self.get_user, self.get_inline_help)
 
     @bindings.add('c-x')

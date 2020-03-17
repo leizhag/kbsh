@@ -25,8 +25,8 @@ class Toolbar(object):
                 help = "OFF"
 
             return [
-                ('class:bottom-toolbar', 'Contexts: ' + ' '.join(ctx['name'] for ctx in contexts) + '\n'),
-                ('class:bottom-toolbar', 'Namespaces: ' + ' '.join(ns[0] for ns in list_namespaces()) + '\n'),
+                ('class:bottom-toolbar', 'Contexts: ' + ' '.join(contexts) + '\n'),
+                ('class:bottom-toolbar', 'Namespaces: ' + ' '.join(list_namespaces()) + '\n'),
                 ('class:keyword',        '[C-X] switch-context  '),
                 ('class:keyword',        '[C-N] swith-namespace  '),
                 ('class:keyword',        '[C-H] in-line help: '),

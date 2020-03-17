@@ -13,9 +13,41 @@ from client import KubernetesClient
 logger = logging.getLogger(__name__)
 
 
+user_input_prefix_to_shell_cmd_prefix = {
+    'g ': 'get ',
+    'd ': 'describe ',
+    'lo ': 'logs ',
+    'lot ': 'logs --tail ',
+    'ex ': 'exec -it ',
+}
+
+user_input_part_to_shell_cmd_part = {
+    ' -t ': ' --tail ',
+    ' -c ': ' --context ',
+}
+
+
+def shell_cmd_from_user_input(user_input):
+    if user_input.startswith('!'):
+        return user_input[1:]
+
+    for user_input_prefix, shell_cmd_prefix in user_input_prefix_to_shell_cmd_prefix.items():
+        if user_input.startswith(user_input_prefix):
+            user_input = user_input.replace(user_input_prefix, shell_cmd_prefix, 1)
+            break
+
+    for user_input_part, shell_cmd_part in user_input_part_to_shell_cmd_part.items():
+        user_input = user_input.replace(user_input_part, shell_cmd_part, 1)
+
+    return "kubectl " + user_input
+
+
 class KubectlCompleter(Completer):
 
-    def __init__(self):
+    def __init__(self, suffix_to_suggestor=None):
+        if suffix_to_suggestor is None:
+            suffix_to_suggestor = {}
+        self.end_to_suggestor = suffix_to_suggestor
         self.inline_help = True
         self.namespace = ""
         self.kube_client = KubernetesClient()
@@ -37,9 +69,18 @@ class KubectlCompleter(Completer):
 
     def get_completions(self, document, complete_event, smart_completion=None):
         word_before_cursor = document.get_word_before_cursor(WORD=True)
-        cmdline = document.text_before_cursor.strip()
+
+        cmdline = shell_cmd_from_user_input(document.text_before_cursor.strip())
         try:
-            tokens = ['kubectl'] + shlex.split(cmdline)
+            tokens = shlex.split(cmdline)
+
+            for suffix, suggestor in self.end_to_suggestor.items():
+                if (tokens and not word_before_cursor and tokens[-1] == suffix
+                        or len(tokens) > 1 and tokens[-2] == suffix):
+                    for key in fuzzyfinder(word_before_cursor, suggestor()):
+                        yield Completion(key, -len(word_before_cursor), display=key)
+                    return
+
             _, _, suggestions = self.parser.parse_tokens(tokens)
             valid_keys = fuzzyfinder(word_before_cursor, suggestions.keys())
             for key in valid_keys:
