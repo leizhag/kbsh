@@ -1,4 +1,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
+
+import shlex
+
 from urllib3.exceptions import NewConnectionError, ConnectTimeoutError, MaxRetryError
 from kubernetes import client, config
 from kubernetes.client.api_client import ApiException
@@ -135,12 +138,11 @@ class KubernetesClient(object):
     # TODO: handle quotes
     @staticmethod
     def _option_value(cmd, option):
-        find = ' ' + option + ' '
-        idx = cmd.find(find)
-        if idx < 0:
-            return
-        start = idx + len(find)
-        idx_space = cmd.find(' ', start)
-        if idx_space < 0:
-            return cmd[start:]
-        return cmd[start: idx_space]
+        found = False
+        for token in shlex.split(cmd):
+            if found:
+                return token
+            if token in '<|>':
+                return
+            if token == option:
+                found = True
