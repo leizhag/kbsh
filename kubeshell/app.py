@@ -78,7 +78,7 @@ class KubeConfig(object):
 
     @staticmethod
     def list_namespaces():
-        return api.list_namespace(timeout_seconds=1)
+        return client.get_resource("namespace")
 
     @staticmethod
     def switch_to_next_namespace(current_namespace):
@@ -221,9 +221,9 @@ class Kubeshell(object):
                     lexer=PygmentsLexer(KubectlLexer),
                     enable_history_search=False,
                     bottom_toolbar=self.toolbar.handler,
-                    vi_mode=True,
                     key_bindings=bindings,
-                    completer=completer
+                    completer=completer,
+                    complete_in_thread=True
                 )
             except (EOFError, KeyboardInterrupt):
                 sys.exit()
