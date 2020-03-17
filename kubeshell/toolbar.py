@@ -25,17 +25,13 @@ class Toolbar(object):
                 help = "OFF"
 
             return [
-                ('class:bottom-toolbar', ' '.join(ctx['name'] for ctx in contexts) + '\n'),
-                ('class:bottom-toolbar', ' '.join(ns[0] for ns in list_namespaces()) + '\n'),
-                ('class:keyword',        ' [C-X] Context: '),
-                ('class:bottom-toolbar', get_cluster_name()),
-                ('class:keyword',        ' [C-N] Namespace: '),
-                ('class:bottom-toolbar', get_namespace()),
-                ('class:keyword',        ' User: '),
-                ('class:bottom-toolbar', get_user()),
-                ('class:keyword',        ' [C-H] In-line help: '),
-                (help_token,             '{0}'.format(help)),
-                ('class:keyword',        ' [C-C] Exit ')
+                ('class:bottom-toolbar', 'Contexts: ' + ' '.join(ctx['name'] for ctx in contexts) + '\n'),
+                ('class:bottom-toolbar', 'Namespaces: ' + ' '.join(ns[0] for ns in list_namespaces()) + '\n'),
+                ('class:keyword',        '[C-X] switch-context  '),
+                ('class:keyword',        '[C-N] swith-namespace  '),
+                ('class:keyword',        '[C-H] in-line help: '),
+                (help_token,             '{0}  '.format(help)),
+                ('class:keyword',        '[C-C] exit')
             ]
 
         return get_toolbar_items
