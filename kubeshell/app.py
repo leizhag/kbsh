@@ -106,10 +106,19 @@ class KubeConfig(object):
         cmd_process.wait()
 
 
-completer = KubectlCompleter(suffix_to_suggestor={
+def make_resource_getter(resource):
+    return lambda: client.get_resource(resource)
+
+
+suffix_to_suggestor={
     '-n': KubeConfig.list_namespace_names,
     '-c': lambda: KubeConfig.startup_contexts,
-})
+}
+
+resources = [resource.name for resource in api.get_api_resources().resources]
+for resource in resources:
+    suffix_to_suggestor[resource] = make_resource_getter(resource)
+completer = KubectlCompleter(suffix_to_suggestor)
 
 
 class Kubeshell(object):
@@ -119,12 +128,13 @@ class Kubeshell(object):
 
     @staticmethod
     def get_message():
+        prompt_style = 'class:danger' if Kubeshell.clustername == 'prod' else 'class:prompt'
         return [
-            ('class:prompt', '⎈  k8s:('),
-            ('class:state',  Kubeshell.clustername),
-            ('class:prompt', '/'),
-            ('class:state',  Kubeshell.namespace),
-            ('class:prompt', ') ⎈  '),
+            (prompt_style, '⎈  k8s:('),
+            ('class:state', Kubeshell.clustername),
+            (prompt_style, '/'),
+            ('class:state', Kubeshell.namespace),
+            (prompt_style, ') ⎈  '),
         ]
 
     def __init__(self, refresh_resources=True):

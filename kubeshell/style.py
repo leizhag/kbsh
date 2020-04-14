@@ -82,5 +82,6 @@ class StyleFactory(object):
                                  # 'path': 'ansicyan underline',
                                  'prompt': '#0000aa bold',
                                  'state': '#00aa00 bold',
+                                 'danger': '#aa0000 bold',
                              }),
                              ])
