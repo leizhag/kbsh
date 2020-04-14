@@ -105,6 +105,16 @@ class KubeConfig(object):
         cmd_process = subprocess.Popen(kubectl_config_set_namespace, shell=True, stdout=subprocess.PIPE)
         cmd_process.wait()
 
+    # TODO: performance
+    @classmethod
+    def switch_context_and_namespace(cls, ctx, ns):
+        kubectl_config_use_context = "kubectl config use-context " + ctx
+        cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
+        cmd_process.wait()
+        kubectl_config_set_namespace = KubeConfig.template_set_namespace.format(ctx, ns)
+        cmd_process = subprocess.Popen(kubectl_config_set_namespace, shell=True, stdout=subprocess.PIPE)
+        cmd_process.wait()
+
 
 def make_resource_getter(resource):
     return lambda: client.get_resource(resource)
@@ -181,9 +191,14 @@ class Kubeshell(object):
 
     def update_state(self, user_input):
         ctx = client.get_context(user_input)
+        ns = client.get_namespace(user_input)
+
+        if ctx and ctx != Kubeshell.clustername and ns and ns != Kubeshell.namespace:
+            KubeConfig.switch_context_and_namespace(ctx, ns)
+            return
         if ctx and ctx != Kubeshell.clustername:
             KubeConfig.switch_context(ctx)
-        ns = client.get_namespace(user_input)
+            return
         if ns and ns != Kubeshell.namespace:
             KubeConfig.switch_namespace(ns)
 
