@@ -11,6 +11,8 @@ import logging
 import urllib3
 
 # disable warnings on stdout/stderr from urllib3 connection errors
+from utils import get_shell_option_value
+
 ulogger = logging.getLogger("urllib3")
 ulogger.setLevel("ERROR")
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -129,20 +131,8 @@ class KubernetesClient(object):
 
     @staticmethod
     def get_context(cmd):
-        return KubernetesClient._option_value(cmd, '-c') or KubernetesClient._option_value(cmd, '--context')
+        return get_shell_option_value(cmd, '-c', '--context')
 
     @staticmethod
     def get_namespace(cmd):
-        return KubernetesClient._option_value(cmd, '-n') or KubernetesClient._option_value(cmd, '--namespace')
-
-    # TODO: handle quotes
-    @staticmethod
-    def _option_value(cmd, option):
-        found = False
-        for token in shlex.split(cmd):
-            if found:
-                return token
-            if token in '<|>':
-                return
-            if token == option:
-                found = True
+        return get_shell_option_value(cmd, '-n', '--namespace')

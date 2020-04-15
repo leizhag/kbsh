@@ -243,8 +243,6 @@ class Kubeshell(object):
             user_input = shell_cmd_from_user_input(user_input)
 
             if user_input:
-                if '-o' in user_input and 'json' in user_input:
-                    user_input += ' | pygmentize -l json'
                 p = subprocess.Popen(user_input, shell=True)
                 try:
                     _, stderr_data = p.communicate()

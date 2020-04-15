@@ -10,6 +10,8 @@ import os.path
 
 from parser import Parser
 from client import KubernetesClient
+from utils import get_shell_option_value
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +28,12 @@ user_input_part_to_shell_cmd_part = {
     ' -c ': ' --context ',
 }
 
+formats_to_highlight = {'yaml', 'json'}
+
+
+def highlight(cmd, format):
+    return cmd + '| pygmentize -l ' + format
+
 
 def shell_cmd_from_user_input(user_input):
     if user_input.startswith('!'):
@@ -38,6 +46,10 @@ def shell_cmd_from_user_input(user_input):
 
     for user_input_part, shell_cmd_part in user_input_part_to_shell_cmd_part.items():
         user_input = user_input.replace(user_input_part, shell_cmd_part, 1)
+
+    output_format = get_shell_option_value(user_input, '-o', '--output')
+    if output_format in formats_to_highlight:
+        user_input = highlight(user_input, output_format)
 
     return "kubectl " + user_input
 
