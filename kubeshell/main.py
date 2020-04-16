@@ -6,9 +6,10 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import argparse
 
-from app import Kubeshell, KubeConfig
-
 import logging
+
+from utils import switch_context
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,8 +19,9 @@ def cli():
                                                 'when starting the kube-shell.')
     args = parser.parse_args()
     if args.context:
-        KubeConfig.switch_context(args.context)
+        switch_context(args.context)
 
+    from app import Kubeshell
     kube_shell= Kubeshell()
     logger.info("session start")
     kube_shell.run_cli()

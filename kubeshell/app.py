@@ -18,6 +18,9 @@ import sys
 import subprocess
 import yaml
 import logging
+
+from utils import switch_context
+
 logger = logging.getLogger(__name__)
 
 inline_help = True
@@ -95,9 +98,7 @@ class KubeConfig(object):
 
     @classmethod
     def switch_context(cls, ctx):
-        kubectl_config_use_context = "kubectl config use-context " + ctx
-        cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
-        cmd_process.wait()
+        switch_context(ctx)
 
     @classmethod
     def switch_namespace(cls, ns):

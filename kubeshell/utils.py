@@ -1,4 +1,5 @@
 import shlex
+import subprocess
 
 
 def get_shell_option_value(cmd, *options):
@@ -14,3 +15,9 @@ def get_shell_option_value(cmd, *options):
             return
         if token in options:
             found = True
+
+
+def switch_context(ctx):
+    kubectl_config_use_context = "kubectl config use-context " + ctx
+    cmd_process = subprocess.Popen(kubectl_config_use_context, shell=True, stdout=subprocess.PIPE)
+    cmd_process.wait()
