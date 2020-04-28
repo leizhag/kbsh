@@ -25,9 +25,9 @@ requires = [
 setup(
     name='kube-shell',
     version=__version__,
-    description='Kubernetes shell: An integrated shell for working with the Kubernetes CLI',
-    author='Cloudnative Labs',
-    url='https://github.com/cloudnativelabs/kube-shell',
+    description='Kubernetes shell: An integrated shell for working effectively with multiple Kubernetes clusters',
+    author='Lei Zhang',
+    url='https://github.com/leizhag/kube-shell',
     packages=find_packages(),
     package_data={'kubeshell': ['data/cli.json']},
     zip_safe=False,
