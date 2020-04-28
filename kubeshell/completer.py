@@ -1,19 +1,19 @@
 from __future__ import absolute_import, unicode_literals, print_function
-from subprocess import check_output
-from prompt_toolkit.completion import Completer, Completion
-from fuzzyfinder import fuzzyfinder
-import logging
-import shlex
+
 import json
+import logging
 import os
 import os.path
+import shlex
 
-from parser import Parser
-from client import KubernetesClient
-from utils import get_shell_option_value
+from fuzzyfinder import fuzzyfinder
+from prompt_toolkit.completion import Completer, Completion
+
+from .client import KubernetesClient
+from .parser import Parser
+from .utils import get_shell_option_value
 
 logger = logging.getLogger(__name__)
-
 
 # TODO: configurable
 user_input_prefix_to_shell_cmd_prefix = {

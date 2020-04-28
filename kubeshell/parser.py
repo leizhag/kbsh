@@ -1,11 +1,11 @@
 from __future__ import absolute_import, unicode_literals, print_function
-import json
-import os
 
+import json
 import logging
+
 logger = logging.getLogger(__name__)
 
-from client import KubernetesClient
+from .client import KubernetesClient
 
 
 class Option(object):
@@ -64,7 +64,7 @@ class Parser(object):
         indentter = '{:>{width}}'.format(root.node, width=indent)
         print(indentter)
         for child in root.children:
-            self.print_tree(root=child, indent=indent+2)
+            self.print_tree(root=child, indent=indent + 2)
 
     def parse_tokens(self, tokens):
         """ Parse a sequence of tokens
@@ -164,7 +164,9 @@ class Parser(object):
             unparsed.append(token)
         return parsed, unparsed, suggestions
 
+
 if __name__ == '__main__':
     parser = Parser('/Users/tsp/workspace/py/kube-shell/kubeshell/data/cli.json')
-    p, _, s = parser.treewalk(parser.ast, parsed=list(), unparsed=['--', '--tcp 900:8080', 'nodeport', 'service', 'create', 'kubectl'])
+    p, _, s = parser.treewalk(parser.ast, parsed=list(),
+                              unparsed=['--', '--tcp 900:8080', 'nodeport', 'service', 'create', 'kubectl'])
     print(p, s)

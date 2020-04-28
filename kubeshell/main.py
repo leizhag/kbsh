@@ -8,7 +8,7 @@ import argparse
 
 import logging
 
-from utils import switch_context
+from .utils import switch_context
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def cli():
     if args.context:
         switch_context(args.context)
 
-    from app import Kubeshell
+    from .app import Kubeshell
     kube_shell= Kubeshell()
     logger.info("session start")
     kube_shell.run_cli()

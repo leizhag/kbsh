@@ -1,18 +1,16 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
-import shlex
+import logging
+import os
 
-from urllib3.exceptions import NewConnectionError, ConnectTimeoutError, MaxRetryError
+import urllib3
 from kubernetes import client, config
 from kubernetes.client.api_client import ApiException
+from urllib3.exceptions import NewConnectionError, ConnectTimeoutError, MaxRetryError
 
-import os
-import logging
-import urllib3
+from .utils import get_shell_option_value
 
 # disable warnings on stdout/stderr from urllib3 connection errors
-from utils import get_shell_option_value
-
 ulogger = logging.getLogger("urllib3")
 ulogger.setLevel("ERROR")
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

@@ -1,25 +1,24 @@
 from __future__ import print_function, absolute_import, unicode_literals
 
+import logging
+import os
+import subprocess
+import sys
+
+import click
+import yaml
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.lexers import PygmentsLexer
 
-from style import StyleFactory
-from completer import KubectlCompleter, shell_cmd_from_user_input
-from lexer import KubectlLexer
-from toolbar import Toolbar
-from client import KubernetesClient, kubeconfig_filepath
-
-import os
-import click
-import sys
-import subprocess
-import yaml
-import logging
-
-from utils import switch_context
+from .client import KubernetesClient, kubeconfig_filepath
+from .completer import KubectlCompleter, shell_cmd_from_user_input
+from .lexer import KubectlLexer
+from .style import StyleFactory
+from .toolbar import Toolbar
+from .utils import switch_context
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +27,8 @@ bindings = KeyBindings()
 client = KubernetesClient()
 api = client.get_core_v1_api()
 
-class KubeConfig(object):
 
+class KubeConfig(object):
     clustername = user = ""
     namespace = "default"
     current_context_index = 0
@@ -42,7 +41,7 @@ class KubeConfig(object):
             return ("", "", "")
 
         with open(os.path.expanduser(kubeconfig_filepath), "r") as fd:
-            docs = yaml.load_all(fd)
+            docs = yaml.safe_load_all(fd)
             for doc in docs:
                 current_context = doc.get("current-context", "")
                 contexts = doc.get("contexts")
@@ -66,7 +65,7 @@ class KubeConfig(object):
             return
 
         with open(os.path.expanduser(kubeconfig_filepath), "r") as fd:
-            docs = yaml.load_all(fd)
+            docs = yaml.safe_load_all(fd)
             for doc in docs:
                 return doc.get("contexts")
 
@@ -76,7 +75,7 @@ class KubeConfig(object):
     def switch_to_next_cluster():
         contexts = KubeConfig.parse_contexts()
         if contexts:
-            KubeConfig.current_context_index = (KubeConfig.current_context_index+1) % len(contexts)
+            KubeConfig.current_context_index = (KubeConfig.current_context_index + 1) % len(contexts)
             cluster_name = contexts[KubeConfig.current_context_index]['name']
             KubeConfig.switch_context(cluster_name)
 
@@ -121,7 +120,7 @@ def make_resource_getter(resource):
     return lambda: client.get_resource(resource)
 
 
-suffix_to_suggestor={
+suffix_to_suggestor = {
     '-n': KubeConfig.list_namespace_names,
     '-c': lambda: KubeConfig.startup_contexts,
 }
@@ -133,7 +132,6 @@ completer = KubectlCompleter(suffix_to_suggestor)
 
 
 class Kubeshell(object):
-
     clustername = user = ""
     namespace = "default"
 
@@ -208,7 +206,7 @@ class Kubeshell(object):
         logger.info("running kube-shell event loop")
         if not os.path.exists(os.path.expanduser(kubeconfig_filepath)):
             click.secho('Kube-shell uses {0} for server side completion. Could not find {0}. '
-                    'Server side completion functionality may not work.'.format(kubeconfig_filepath),
+                        'Server side completion functionality may not work.'.format(kubeconfig_filepath),
                         fg='red', blink=True, bold=True)
 
         session = PromptSession(history=self.history)
