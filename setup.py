@@ -23,18 +23,19 @@ requires = [
 ]
 
 setup(
-    name='kube-shell',
+    name='kbsh',
     version=__version__,
-    description='Kubernetes shell: An integrated shell for working effectively with multiple Kubernetes clusters',
+    description='An integrated shell for working effectively with multiple Kubernetes clusters',
+    long_description=open('README.rst').read(),
     author='Lei Zhang',
-    url='https://github.com/leizhag/kube-shell',
+    url='https://github.com/leizhag/kbsh',
     packages=find_packages(),
     package_data={'kubeshell': ['data/cli.json']},
     zip_safe=False,
     install_requires=requires,
     entry_points={
         'console_scripts': [
-            'kube-shell = kubeshell.main:cli',
+            'kbsh = kubeshell.main:cli',
         ]
     },
     license="Apache License 2.0",
