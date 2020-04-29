@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 user_input_prefix_to_shell_cmd_prefix = {
     'g ': 'get ',
     'd ': 'describe ',
-    'lo ': 'logs ',
-    'lot ': 'logs --tail ',
+    'e ': 'exec -it ',
+    'l ': 'logs ',
+    'lt ': 'logs --tail ',
     'ld ': 'logs deploy/',
-    'ex ': 'exec -it ',
 }
 
 user_input_part_to_shell_cmd_part = {
