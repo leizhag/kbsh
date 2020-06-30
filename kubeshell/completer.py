@@ -28,6 +28,7 @@ user_input_prefix_to_shell_cmd_prefix = {
 user_input_part_to_shell_cmd_part = {
     ' -t ': ' --tail ',
     ' -c ': ' --context ',
+    ' --sort-by-age': ' --sort-by="{.metadata.creationTimestamp}"',
 }
 
 formats_to_highlight = {'yaml', 'json'}
