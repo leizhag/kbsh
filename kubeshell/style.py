@@ -80,8 +80,11 @@ class StyleFactory(object):
                                  # 'pound': '#00aa00',
                                  # 'host': '#00ffff bg:#444400',
                                  # 'path': 'ansicyan underline',
-                                 'prompt': '#0000aa bold',
-                                 'state': '#00aa00 bold',
-                                 'danger': '#aa0000 bold',
+                                 # 'prompt': '#0000aa bold',
+                                 # 'state': '#00aa00 bold',
+                                 # 'danger': '#aa0000 bold',
+                                 'prompt': 'fg:ansiblue bold',
+                                 'state': 'fg:ansigreen bold',
+                                 'danger': 'fg:ansired bold'
                              }),
                              ])
