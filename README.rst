@@ -3,6 +3,8 @@ Kbsh - Work Effectively with Multiple Kubernetes Clusters
 
 |PyPI version| |PyPI pyversions| |License|
 
+.. contents::
+
 Features
 -------------------
 
@@ -74,6 +76,14 @@ Installation
 ::
 
     pip install kbsh
+
+Release
+-------
+
+::
+
+    python3 setup.py sdist bdist_wheel
+    python3 -m twine upload dist/*
 
 Status
 ------
